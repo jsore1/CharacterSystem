@@ -1,0 +1,10 @@
+{
+  "title": "Character System",
+  "author": "JSore",
+  "dependencies": {},
+  "sources": [
+    "images",
+    "scripts",
+    "frames"
+  ]
+}
