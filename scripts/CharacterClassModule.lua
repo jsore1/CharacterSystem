@@ -100,8 +100,8 @@ WM("CharacterClassModule", function(import, export, exportDefault)
                 BlzFrameSetAllPoints(o.inventorySlots[i][j]["buttonFrame"], o.inventorySlots[i][j]["slotBackdrop"])
                 BlzFrameSetPoint(o.inventorySlots[i][j]["slotItemBackdrop"], FRAMEPOINT_CENTER, o.inventorySlots[i][j]["slotBackdrop"], FRAMEPOINT_CENTER, 0, 0)
                 BlzFrameSetPoint(o.inventorySlots[i][j]["slotBackdrop"], FRAMEPOINT_TOPLEFT, o.inventoryFrame[1], FRAMEPOINT_TOPLEFT, 0.02 + ((j - 1) * 0.0395), (-0.213 + ((i - 1) * -0.0395)))
-                BlzFrameSetText(BlzGetFrameByName("TooltipText",0), "Пусто")
-                BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), "Пусто")
+                BlzFrameSetText(o.tooltip[3], "Пусто")
+                BlzFrameSetText(o.tooltip[2], "Пусто")
                 o.inventorySlots[i][j]["fr"] = nil -- Для отлова правой кнопки мыши на фрейме
                 o.inventorySlots[i][j]["triggers"] = {
                     CreateTrigger(),
@@ -118,51 +118,55 @@ WM("CharacterClassModule", function(import, export, exportDefault)
                 o.inventorySlots[i][j]["actions"] = {
                     TriggerAddAction(o.inventorySlots[i][j]["triggers"][1], function()
                         o.inventorySlots[i][j]["fr"] = BlzGetTriggerFrame()
-                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), o.inventorySlots[i][j]["item"]["descr"])
-                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), o.inventorySlots[i][j]["item"]["name"])
+                        BlzFrameSetText(o.tooltip[3], o.inventorySlots[i][j]["item"]["descr"])
+                        BlzFrameSetText(o.tooltip[2], o.inventorySlots[i][j]["item"]["name"])
                         BlzFrameSetPoint(o.tooltip[1], FRAMEPOINT_TOPRIGHT, o.inventorySlots[i][j]["slotBackdrop"], FRAMEPOINT_TOPLEFT, 0, 0)
                         BlzFrameSetVisible(o.tooltip[1], true)
                     end),
                     TriggerAddAction(o.inventorySlots[i][j]["triggers"][2], function()
                         o.inventorySlots[i][j]["fr"] = nil
                         BlzFrameSetVisible(o.tooltip[1], false)
-                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), "")
-                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), "")
+                        BlzFrameSetText(o.tooltip[3], "")
+                        BlzFrameSetText(o.tooltip[2], "")
                     end),
                     TriggerAddAction(o.inventorySlots[i][j]["triggers"][3], function()
                         local temp_item
                         for l = 1, o.inventory.equipmentLines do
                             for m = 1, o.inventory.equipmentColumns do
                                 if o.equipmentSlots[l][m]["class"] == o.inventorySlots[i][j]["item"]["class"] then
-                                    temp_item = o.equipmentSlots[l][m]["item"]
-                                    o.equipmentSlots[l][m]["item"] = o.inventorySlots[i][j]["item"]
-                                    BlzFrameSetTexture(o.equipmentSlots[l][m]["itemBackdrop"], o.equipmentSlots[l][m]["item"]["iconPath"], 0, true)
-                                    for k = 1, #o.equipmentSlots[l][m]["item"]["abilitys"] do
-                                        UnitAddAbility(o.unit, o.equipmentSlots[l][m]["item"]["abilitys"][k])
-                                    end
-                                    if temp_item["id"] == nil then
-                                        BlzFrameSetTexture(o.inventorySlots[i][j]["slotItemBackdrop"], "images\\transparent_slot.blp", 0, true)
-                                        o.inventorySlots[i][j]["item"] = Item:new(
-                                        { 
-                                            id = nil, 
-                                            name = "Пусто", 
-                                            descr = "Пусто", 
-                                            class = nil,
-                                            iconPath = nil,
-                                            abilitys = nil,
-                                            max_stacks = nil,
-                                            num_of_charges = nil,
-                                        })
-                                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), o.inventorySlots[i][j]["item"]["descr"])
-                                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), o.inventorySlots[i][j]["item"]["name"])
-                                    else
-                                        for k = 1, #temp_item["abilitys"] do
-                                            UnitRemoveAbility(o.unit, temp_item["abilitys"][k])
+                                    if o.equipmentSlots[l][m]["item"]["id"] ~= o.inventorySlots[i][j]["item"]["id"] then
+                                        temp_item = o.equipmentSlots[l][m]["item"]
+                                        o.equipmentSlots[l][m]["item"] = o.inventorySlots[i][j]["item"]
+                                        BlzFrameSetTexture(o.equipmentSlots[l][m]["itemBackdrop"], o.equipmentSlots[l][m]["item"]["iconPath"], 0, true)
+                                        
+                                        for k = 1, #o.equipmentSlots[l][m]["item"]["abilitys"] do
+                                            UnitAddAbility(o.unit, o.equipmentSlots[l][m]["item"]["abilitys"][k])
                                         end
-                                        o.inventorySlots[i][j]["item"] = temp_item
-                                        BlzFrameSetTexture(o.inventorySlots[i][j]["slotItemBackdrop"], o.inventorySlots[i][j]["item"]["iconPath"], 0, true)
-                                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), o.inventorySlots[i][j]["item"]["descr"])
-                                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), o.inventorySlots[i][j]["item"]["name"])
+                                        if temp_item["id"] == nil then
+                                            BlzFrameSetTexture(o.inventorySlots[i][j]["slotItemBackdrop"], "images\\transparent_slot.blp", 0, true)
+                                            o.inventorySlots[i][j]["item"] = Item:new(
+                                            { 
+                                                id = nil, 
+                                                name = "Пусто", 
+                                                descr = "Пусто", 
+                                                class = nil,
+                                                iconPath = nil,
+                                                abilitys = nil,
+                                                max_stacks = nil,
+                                                num_of_charges = nil,
+                                            })
+                                            BlzFrameSetText(o.tooltip[3], o.inventorySlots[i][j]["item"]["descr"])
+                                            BlzFrameSetText(o.tooltip[2], o.inventorySlots[i][j]["item"]["name"])
+                                        else
+                                            for k = 1, #temp_item["abilitys"] do
+                                                UnitRemoveAbility(o.unit, temp_item["abilitys"][k])
+                                            end
+                                            o.inventorySlots[i][j]["item"] = temp_item
+                                            BlzFrameSetTexture(o.inventorySlots[i][j]["slotItemBackdrop"], o.inventorySlots[i][j]["item"]["iconPath"], 0, true)
+                                            BlzFrameSetText(o.tooltip[3], o.inventorySlots[i][j]["item"]["descr"])
+                                            BlzFrameSetText(o.tooltip[2], o.inventorySlots[i][j]["item"]["name"])
+                                        end
+                                        return
                                     end
                                     return
                                 end
@@ -212,15 +216,15 @@ WM("CharacterClassModule", function(import, export, exportDefault)
                 }
                 o.equipmentSlots[i][j]["actions"] = {
                     TriggerAddAction(o.equipmentSlots[i][j]["triggers"][1], function()
-                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), o.equipmentSlots[i][j]["item"]["descr"])
-                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), o.equipmentSlots[i][j]["item"]["name"])
+                        BlzFrameSetText(o.tooltip[3], o.equipmentSlots[i][j]["item"]["descr"])
+                        BlzFrameSetText(o.tooltip[2], o.equipmentSlots[i][j]["item"]["name"])
                         BlzFrameSetPoint(o.tooltip[1], FRAMEPOINT_TOPRIGHT, o.equipmentSlots[i][j]["backdrop"], FRAMEPOINT_TOPLEFT, 0, 0)
                         BlzFrameSetVisible(o.tooltip[1], true)
                     end),
                     TriggerAddAction(o.equipmentSlots[i][j]["triggers"][2], function()
                         BlzFrameSetVisible(o.tooltip[1], false)
-                        BlzFrameSetText(BlzGetFrameByName("TooltipText",0), "")
-                        BlzFrameSetText(BlzGetFrameByName("TooltipTitle",0), "")
+                        BlzFrameSetText(o.tooltip[3], "")
+                        BlzFrameSetText(o.tooltip[2], "")
                     end),
                     TriggerAddAction(o.equipmentSlots[i][j]["triggers"][3], function()
                         for k = 1, o.inventory.lines do
